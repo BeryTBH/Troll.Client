@@ -6,9 +6,12 @@ import java.util.List;
 import troll.client.module.Module;
 import troll.client.module.movement.Sprint;
 import troll.client.module.movement.Speed;
+import troll.client.module.movement.Fly;
 import troll.client.module.movement.NoSlow;
 import troll.client.module.player.FastPlace;
 import troll.client.module.player.NoFall;
+import troll.client.module.player.AntiAFK;
+import troll.client.module.player.AutoRespawn;
 
 public class ModuleManager {
     private final List<Module> modules = new ArrayList<Module>();
