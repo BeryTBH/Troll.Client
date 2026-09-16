@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
 
 import troll.client.managers.ModuleManager;
 import troll.client.module.Categories;
@@ -19,21 +21,30 @@ public class ClickGUI extends GuiScreen {
     private static final int SUBTEXT = 0xFFAAAAAA;
 
     private final Categories[] categories = {
+        Categories.MOVEMENT,
         Categories.COMBAT,
         Categories.RENDER,
         Categories.WORLD,
         Categories.PLAYER,
-        Categories.MOVEMENT,
         Categories.MISC
     };
 
     private final String[] categoryNames = {
+        "Movement",
         "Combat",
         "Render",
         "World",
         "Player",
-        "Movement",
         "Misc"
+    };
+
+    private final ItemStack[] categoryIcons = {
+        new ItemStack(Items.feather), // Movement
+        new ItemStack(Items.diamond_sword), // Combat
+        new ItemStack(Items.ender_eye), // Render
+        new ItemStack(Items.compass), // World
+        new ItemStack(Items.apple), // Player
+        new ItemStack(Items.redstone) // Misc
     };
 
     @Override
@@ -42,14 +53,7 @@ public class ClickGUI extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-
-        drawRect(
-            0,
-            0,
-            width,
-            height,
-            BACKGROUND
-        );
+        drawRect(0, 0, width, height, BACKGROUND);
 
         ModuleManager manager = mc.moduleManager;
 
@@ -58,15 +62,12 @@ public class ClickGUI extends GuiScreen {
         int headerHeight = 16;
         int gap = 8;
 
-        int totalWidth =
-            categories.length * panelWidth +
-            (categories.length - 1) * gap;
+        int totalWidth = categories.length * panelWidth + (categories.length - 1) * gap;
 
         int startX = (width - totalWidth) / 2;
         int startY = 25;
 
         for (int i = 0; i < categories.length; i++) {
-
             Categories category = categories[i];
 
             int x = startX + i * (panelWidth + gap);
@@ -80,10 +81,16 @@ public class ClickGUI extends GuiScreen {
                 ACCENT
             );
 
-            drawCenteredString(
+            mc.getRenderItem().renderItemAndEffectIntoGUI(
+                categoryIcons[i],
+                x + 3,
+                y
+            );
+
+            drawString(
                 fontRendererObj,
                 categoryNames[i],
-                x + panelWidth / 2,
+                x + 22,
                 y + 4,
                 TEXT
             );
@@ -94,12 +101,7 @@ public class ClickGUI extends GuiScreen {
                 manager.getModulesByCategory(category);
 
             for (Module module : modules) {
-
-                boolean hovered =
-                    mouseX >= x &&
-                    mouseX <= x + panelWidth &&
-                    mouseY >= y &&
-                    mouseY <= y + moduleHeight;
+                boolean hovered = mouseX >= x && mouseX <= x + panelWidth && mouseY >= y && mouseY <= y + moduleHeight;
 
                 int color;
 
@@ -143,11 +145,7 @@ public class ClickGUI extends GuiScreen {
     }
 
     @Override
-    protected void mouseClicked(
-        int mouseX,
-        int mouseY,
-        int mouseButton
-    ) {
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
         ModuleManager manager = mc.moduleManager;
 
         int panelWidth = 110;
@@ -155,35 +153,23 @@ public class ClickGUI extends GuiScreen {
         int headerHeight = 16;
         int gap = 8;
 
-        int totalWidth =
-            categories.length * panelWidth +
-            (categories.length - 1) * gap;
+        int totalWidth = categories.length * panelWidth + (categories.length - 1) * gap;
 
         int startX = (width - totalWidth) / 2;
         int startY = 25;
 
         for (Categories category : categories) {
-
             int categoryIndex = getCategoryIndex(category);
 
-            int x =
-                startX +
-                categoryIndex * (panelWidth + gap);
+            int x = startX + categoryIndex * (panelWidth + gap);
 
-            int y =
-                startY +
-                headerHeight +
-                3;
+            int y = startY + headerHeight + 3;
 
             List<Module> modules = manager.getModulesByCategory(category);
 
             for (Module module : modules) {
                 if (
-                    mouseX >= x &&
-                    mouseX <= x + panelWidth &&
-                    mouseY >= y &&
-                    mouseY <= y + moduleHeight
-                ) {
+                    mouseX >= x && mouseX <= x + panelWidth && mouseY >= y && mouseY <= y + moduleHeight) {
                     if (mouseButton == 0) {
                         module.toggle();
                     }

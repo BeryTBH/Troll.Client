@@ -4,11 +4,11 @@ import net.minecraft.client.Minecraft;
 import troll.client.module.Categories;
 import troll.client.module.Module;
 
-public class Sprint extends Module {
+public class NoSlow extends Module {
     private final Minecraft mc = Minecraft.getMinecraft();
 
-    public Sprint() {
-        super("Sprint", Categories.MOVEMENT);
+    public NoSlow() {
+        super("NoSlow", Categories.MOVEMENT);
     }
 
     @Override
@@ -17,11 +17,6 @@ public class Sprint extends Module {
 
     @Override
     public void onDisable() {
-        if (mc == null || mc.thePlayer == null) {
-            return;
-        }
-
-        mc.thePlayer.setSprinting(false);
     }
 
     @Override
@@ -30,8 +25,9 @@ public class Sprint extends Module {
             return;
         }
 
-        if (mc.thePlayer.movementInput.moveForward > 0.0F && !mc.thePlayer.isSneaking() && !mc.thePlayer.isUsingItem()) {
-            mc.thePlayer.setSprinting(true);
+        if (mc.thePlayer.isUsingItem()) {
+            mc.thePlayer.movementInput.moveStrafe *= 5.0F;
+            mc.thePlayer.movementInput.moveForward *= 5.0F;
         }
     }
 }

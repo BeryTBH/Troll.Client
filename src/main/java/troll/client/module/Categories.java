@@ -1,8 +1,8 @@
 package troll.client.module;
 
 public enum Categories {
-    COMBAT,
     MOVEMENT,
+    COMBAT,
     PLAYER,
     RENDER,
     WORLD,

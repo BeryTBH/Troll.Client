@@ -583,9 +583,17 @@ public class Minecraft implements IThreadListener {
 				LanguageMetadataSection.class);
 	}
 
+	public int getRightClickDelayTimer() {
+		return rightClickDelayTimer;
+	}
+
+	public void setRightClickDelayTimer(int value) {
+		rightClickDelayTimer = value;
+	}
+
 	private void createDisplay() {
 		Display.create();
-		Display.setTitle("Eaglercraft 1.8.8");
+		Display.setTitle("Eaglercraft 1.8.8 - Troll Client");
 	}
 
 	private static boolean isJvm64bit() {

@@ -4,15 +4,20 @@ import net.minecraft.client.Minecraft;
 import troll.client.module.Categories;
 import troll.client.module.Module;
 
-public class Sprint extends Module {
+public class Fly extends Module {
     private final Minecraft mc = Minecraft.getMinecraft();
 
-    public Sprint() {
-        super("Sprint", Categories.MOVEMENT);
+    public Fly() {
+        super("Fly", Categories.MOVEMENT);
     }
 
     @Override
     public void onEnable() {
+        if (mc == null || mc.thePlayer == null) {
+            return;
+        }
+
+        mc.thePlayer.capabilities.isFlying = true;
     }
 
     @Override
@@ -21,7 +26,7 @@ public class Sprint extends Module {
             return;
         }
 
-        mc.thePlayer.setSprinting(false);
+        mc.thePlayer.capabilities.isFlying = false;
     }
 
     @Override
@@ -30,8 +35,6 @@ public class Sprint extends Module {
             return;
         }
 
-        if (mc.thePlayer.movementInput.moveForward > 0.0F && !mc.thePlayer.isSneaking() && !mc.thePlayer.isUsingItem()) {
-            mc.thePlayer.setSprinting(true);
-        }
+        mc.thePlayer.capabilities.isFlying = true;
     }
 }
