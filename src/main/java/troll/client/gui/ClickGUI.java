@@ -1,5 +1,6 @@
 package troll.client.gui;
 
+import java.io.IOException;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -9,22 +10,31 @@ import troll.client.module.Categories;
 import troll.client.module.Module;
 
 public class ClickGUI extends GuiScreen {
-    private static final int RED = 0xFFAA0000;
-    private static final int DARK = 0xFF111111;
-    private static final int PANEL = 0xFF191919;
-    private static final int HOVER = 0xFF292929;
-    private static final int ENABLED = 0xFFAA0000;
+    private static final int ACCENT = 0xFFFF0055;
+    private static final int BACKGROUND = 0xAA000000;
+    private static final int MODULE_BG = 0xDD080808;
+    private static final int HOVER = 0xFF202020;
+    private static final int ENABLED = 0xFFFF0055;
+    private static final int TEXT = 0xFFFFFFFF;
+    private static final int SUBTEXT = 0xFFAAAAAA;
 
-    private final String[] categories = {
-        "Player",
-        "Render",
-        "Misc",
-        "Combat",
-        "Movement",
-        "World"
+    private final Categories[] categories = {
+        Categories.COMBAT,
+        Categories.RENDER,
+        Categories.WORLD,
+        Categories.PLAYER,
+        Categories.MOVEMENT,
+        Categories.MISC
     };
 
-    private int selectedCategory = 0;
+    private final String[] categoryNames = {
+        "Combat",
+        "Render",
+        "World",
+        "Player",
+        "Movement",
+        "Misc"
+    };
 
     @Override
     public void initGui() {
@@ -32,202 +42,168 @@ public class ClickGUI extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+
         drawRect(
             0,
             0,
             width,
             height,
-            0x99000000
+            BACKGROUND
         );
-
-        int panelX = 12;
-        int panelY = 20;
-        int panelW = 600;
-        int panelH = 300;
-
-        drawRect(
-            panelX,
-            panelY,
-            panelX + panelW,
-            panelY + panelH,
-            DARK
-        );
-
-        drawRect(
-            panelX,
-            panelY,
-            panelX + panelW,
-            panelY + 25,
-            RED
-        );
-
-        drawCenteredString(
-            fontRendererObj,
-            "TROLL CLIENT",
-            panelX + panelW / 2,
-            panelY + 8,
-            0xFFFFFFFF
-        );
-
-        int catX = panelX + 5;
-
-        for (int i = 0; i < categories.length; i++) {
-            int catW = 95;
-
-            boolean hover = mouseX >= catX && mouseX <= catX + catW && mouseY >= panelY + 30 && mouseY <= panelY + 55;
-
-            int color;
-
-            if (i == selectedCategory) {
-                color = RED;
-            } else if (hover) {
-                color = HOVER;
-            } else {
-                color = PANEL;
-            }
-
-            drawRect(
-                catX,
-                panelY + 30,
-                catX + catW,
-                panelY + 55,
-                color
-            );
-
-            drawCenteredString(
-                fontRendererObj,
-                categories[i],
-                catX + catW / 2,
-                panelY + 38,
-                0xFFFFFFFF
-            );
-
-            catX += catW + 2;
-        }
-
-        drawModules(mouseX, mouseY, panelX, panelY);
-
-        super.drawScreen(mouseX, mouseY, partialTicks);
-    }
-
-    private Categories getSelectedCategory() {
-        switch (selectedCategory) {
-            case 0:
-                return Categories.PLAYER;
-            case 1:
-                return Categories.RENDER;
-            case 2:
-                return Categories.MISC;
-            case 3:
-                return Categories.COMBAT;
-            case 4:
-                return Categories.MOVEMENT;
-            case 5:
-                return Categories.WORLD;
-            default:
-                return Categories.PLAYER;
-        }
-    }
-
-    private void drawModules(int mouseX, int mouseY, int panelX, int panelY) {
-        Categories category = getSelectedCategory();
 
         ModuleManager manager = mc.moduleManager;
 
-        List<Module> modules = manager.getModulesByCategory(category);
+        int panelWidth = 110;
+        int moduleHeight = 16;
+        int headerHeight = 16;
+        int gap = 8;
 
-        int x = panelX + 15;
-        int y = panelY + 70;
+        int totalWidth =
+            categories.length * panelWidth +
+            (categories.length - 1) * gap;
 
-        for (Module module : modules) {
+        int startX = (width - totalWidth) / 2;
+        int startY = 25;
 
-            boolean hover =
-                mouseX >= x &&
-                mouseX <= x + 250 &&
-                mouseY >= y &&
-                mouseY <= y + 22;
+        for (int i = 0; i < categories.length; i++) {
 
-            int color;
+            Categories category = categories[i];
 
-            if (module.isEnabled()) {
-                color = ENABLED;
-            } else if (hover) {
-                color = HOVER;
-            } else {
-                color = PANEL;
-            }
+            int x = startX + i * (panelWidth + gap);
+            int y = startY;
 
             drawRect(
                 x,
                 y,
-                x + 250,
-                y + 22,
-                color
+                x + panelWidth,
+                y + headerHeight,
+                ACCENT
             );
 
-            drawString(
+            drawCenteredString(
                 fontRendererObj,
-                module.getName(),
-                x + 8,
-                y + 7,
-                0xFFFFFFFF
+                categoryNames[i],
+                x + panelWidth / 2,
+                y + 4,
+                TEXT
             );
 
-            y += 26;
+            y += headerHeight + 3;
+
+            List<Module> modules =
+                manager.getModulesByCategory(category);
+
+            for (Module module : modules) {
+
+                boolean hovered =
+                    mouseX >= x &&
+                    mouseX <= x + panelWidth &&
+                    mouseY >= y &&
+                    mouseY <= y + moduleHeight;
+
+                int color;
+
+                if (module.isEnabled()) {
+                    color = ENABLED;
+                } else if (hovered) {
+                    color = HOVER;
+                } else {
+                    color = MODULE_BG;
+                }
+
+                drawRect(
+                    x,
+                    y,
+                    x + panelWidth,
+                    y + moduleHeight,
+                    color
+                );
+
+                drawString(
+                    fontRendererObj,
+                    module.getName(),
+                    x + 4,
+                    y + 4,
+                    TEXT
+                );
+
+                y += moduleHeight + 1;
+            }
         }
+
+        drawString(
+            fontRendererObj,
+            "TROLL CLIENT",
+            8,
+            8,
+            ACCENT
+        );
+
+        super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        int panelX = 12;
-        int panelY = 20;
+    protected void mouseClicked(
+        int mouseX,
+        int mouseY,
+        int mouseButton
+    ) {
+        ModuleManager manager = mc.moduleManager;
 
-        int catX = panelX + 5;
+        int panelWidth = 110;
+        int moduleHeight = 16;
+        int headerHeight = 16;
+        int gap = 8;
 
+        int totalWidth =
+            categories.length * panelWidth +
+            (categories.length - 1) * gap;
+
+        int startX = (width - totalWidth) / 2;
+        int startY = 25;
+
+        for (Categories category : categories) {
+
+            int categoryIndex = getCategoryIndex(category);
+
+            int x =
+                startX +
+                categoryIndex * (panelWidth + gap);
+
+            int y =
+                startY +
+                headerHeight +
+                3;
+
+            List<Module> modules = manager.getModulesByCategory(category);
+
+            for (Module module : modules) {
+                if (
+                    mouseX >= x &&
+                    mouseX <= x + panelWidth &&
+                    mouseY >= y &&
+                    mouseY <= y + moduleHeight
+                ) {
+                    if (mouseButton == 0) {
+                        module.toggle();
+                    }
+
+                    return;
+                }
+
+                y += moduleHeight + 1;
+            }
+        }
+    }
+
+    private int getCategoryIndex(Categories category) {
         for (int i = 0; i < categories.length; i++) {
-
-            int catW = 95;
-
-            if (
-                mouseX >= catX &&
-                mouseX <= catX + catW &&
-                mouseY >= panelY + 30 &&
-                mouseY <= panelY + 55
-            ) {
-
-                selectedCategory = i;
-                return;
+            if (categories[i] == category) {
+                return i;
             }
-
-            catX += catW + 2;
         }
 
-        // Module clicks
-        Categories category = getSelectedCategory();
-
-        List<Module> modules =
-            mc.moduleManager.getModulesByCategory(category);
-
-        int x = panelX + 15;
-        int y = panelY + 70;
-
-        for (Module module : modules) {
-
-            if (
-                mouseX >= x &&
-                mouseX <= x + 250 &&
-                mouseY >= y &&
-                mouseY <= y + 22
-            ) {
-
-                module.toggle();
-                return;
-            }
-
-            y += 26;
-        }
-
-        super.mouseClicked(mouseX, mouseY, mouseButton);
+        return 0;
     }
 
     @Override
