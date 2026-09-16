@@ -23,7 +23,7 @@ public class Sprint extends Module {
     }
 
     @Override
-    public void onUpdate() {
+    public void onTick() {
         Minecraft mc = Minecraft.getMinecraft();
 
         if (mc != null && mc.thePlayer != null) {
