@@ -201,6 +201,10 @@ import net.minecraft.world.WorldSettings;
 import net.minecraft.world.storage.ISaveFormat;
 import net.optifine.Config;
 
+import net.lax1dude.eaglercraft.v1_8.internal.KeyboardConstants;
+import troll.client.gui.ClickGUI;
+import troll.client.managers.ModuleManager;
+
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
  * 
@@ -334,6 +338,8 @@ public class Minecraft implements IThreadListener {
 	private String reconnectURI = null;
 	public boolean mouseGrabSupported = false;
 	public ScaledResolution scaledResolution = null;
+
+	public final ModuleManager moduleManager = new ModuleManager();
 
 	public Minecraft(GameConfiguration gameConfig) {
 		theMinecraft = this;
@@ -1168,6 +1174,8 @@ public class Minecraft implements IThreadListener {
 	 * Runs the current tick.
 	 */
 	public void runTick() throws IOException {
+		moduleManager.onTick();
+
 		if (this.rightClickDelayTimer > 0) {
 			--this.rightClickDelayTimer;
 		}
@@ -1429,6 +1437,15 @@ public class Minecraft implements IThreadListener {
 
 				this.dispatchKeypresses();
 				if (Keyboard.getEventKeyState()) {
+					if (k == KeyboardConstants.KEY_RSHIFT) {
+						if (this.currentScreen instanceof ClickGUI) {
+							this.displayGuiScreen(null);
+						} else {
+							this.displayGuiScreen(new ClickGUI());
+						}
+						continue;
+					}
+					
 					if (EaglerDeferredPipeline.instance != null) {
 						if (k == 62) {
 							DebugFramebufferView.toggleDebugView();
